@@ -45,4 +45,19 @@ class BlogPost extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function likes()
+    {
+        return $this->hasMany(BlogLike::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(BlogComment::class)->latest();
+    }
+
+    public function isLikedByUser($userId)
+    {
+        return $this->likes()->where('user_id', $userId)->exists();
+    }
 }

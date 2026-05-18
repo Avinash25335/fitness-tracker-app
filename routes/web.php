@@ -110,7 +110,15 @@ Route::get('/diets', [DietPlanController::class, 'index'])->name('diets.index');
 Route::get('/trainers', [TrainerController::class, 'index'])->name('trainers.index');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
+// Create must be before {post:slug} to avoid 'create' being matched as a slug
+Route::middleware(['auth'])->group(function () {
+    Route::get('/blog/create', [BlogController::class, 'create'])->name('blog.create');
+    Route::post('/blog', [BlogController::class, 'store'])->name('blog.store');
+    Route::post('/blog/{post}/like', [BlogController::class, 'like'])->name('blog.like');
+    Route::post('/blog/{post}/comments', [BlogController::class, 'comment'])->name('blog.comment');
+    Route::delete('/blog/comments/{comment}', [BlogController::class, 'deleteComment'])->name('blog.comment.delete');
+});
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // 👑 Admin Control Panel
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
