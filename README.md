@@ -18,7 +18,9 @@ FitCore is a complete fitness tracking and coaching platform built with **Larave
 
 - **Fitness & workout management**: workout plans, session tracking, progress charts
 - **Nutrition support**: diet plan generation, follow diet routines, download diet plans
+- **Calorie & nutrition tracking**: calorie logs, meal tracking, and nutrition analytics
 - **Trainer marketplace**: session booking, rescheduling, cancellation, available slots
+- **Trainer dashboard**: trainer availability, bookings, and session management for trainers
 - **Blog features**: browse posts, like posts, comment, create posts (authenticated users)
 - **Admin blogging**: create/update/delete blog posts and manage categories
 - **Authentication**: login, register, password reset, email verification
