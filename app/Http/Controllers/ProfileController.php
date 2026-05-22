@@ -52,4 +52,26 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully! BMI: ' . $bmi);
     }
+
+    public function destroy(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Clean up relationships manually to prevent orphans
+        if ($user->profile) {
+            $user->profile->delete();
+        }
+        if ($user->trainer) {
+            // Optional: Handle trainer sessions if necessary
+            $user->trainer->delete();
+        }
+        
+        Auth::logout();
+        $user->delete();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/')->with('success', 'Your account has been successfully deleted.');
+    }
 }

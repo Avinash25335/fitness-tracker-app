@@ -46,7 +46,7 @@ class DashboardController extends Controller
             ->where('status', 'booked')
             ->where('session_date', '>=', now()->toDateString())
             ->orderBy('session_date', 'asc')
-            ->orderBy('time_slot', 'asc')
+            ->orderBy('session_time', 'asc')
             ->take(3)
             ->get();
 
@@ -75,6 +75,13 @@ class DashboardController extends Controller
                 return \Carbon\Carbon::parse($log->date)->format('D');
             })->map->count();
 
+        // Calorie Logs for today
+        $todayCalorieLogs = \App\Models\CalorieLog::where('user_id', $user->id)
+            ->whereDate('logged_at', now()->toDateString())
+            ->get();
+        
+        $todayTotalCalories = $todayCalorieLogs->sum('calories');
+
         return view('dashboard.index', [
             'user'                   => $user,
             'profile'                => $profile,
@@ -87,6 +94,8 @@ class DashboardController extends Controller
             'weeklyActivity'         => $weeklyActivity,
             'upcomingSessions'       => $upcomingSessions,
             'mealReminder'           => $mealReminder,
+            'todayCalorieLogs'       => $todayCalorieLogs,
+            'todayTotalCalories'     => $todayTotalCalories,
         ]);
     }
 

@@ -56,7 +56,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-5" id="registerForm" novalidate>
+            <form method="POST" action="{{ route('register.post') }}" class="space-y-5" id="registerForm" novalidate>
                 @csrf
 
                 {{-- Full Name --}}
@@ -77,6 +77,30 @@
                            class="input-field w-full bg-surface-2 border text-white rounded-xl px-4 py-3 focus:outline-none transition-all duration-200 placeholder-gray-600 text-sm {{ $errors->has('email') ? 'border-red-500' : 'border-border-col focus:border-brand focus:ring-1 focus:ring-brand/30' }}">
                     @error('email')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
                     <p class="field-error text-red-400 text-xs mt-1 hidden" id="email-error"></p>
+                </div>
+
+                {{-- Account Type --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Account Type</label>
+                    <input type="hidden" name="role" value="{{ old('role', 'user') }}">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input id="role_user" type="radio" name="role" value="user" class="sr-only peer" {{ old('role', 'user') === 'user' ? 'checked' : '' }}>
+                            <label for="role_user" class="block cursor-pointer rounded-2xl border border-border-col bg-surface-2 p-4 transition-all duration-200 hover:border-brand peer-checked:border-brand peer-checked:bg-surface">
+                                <div class="text-sm font-bold text-white">User</div>
+                                <p class="text-xs text-gray-400 mt-1">Access workouts, nutrition, and trainer bookings.</p>
+                            </label>
+                        </div>
+                        <div>
+                            <input id="role_trainer" type="radio" name="role" value="trainer" class="sr-only peer" {{ old('role') === 'trainer' ? 'checked' : '' }}>
+                            <label for="role_trainer" class="block cursor-pointer rounded-2xl border border-border-col bg-surface-2 p-4 transition-all duration-200 hover:border-brand peer-checked:border-brand peer-checked:bg-surface">
+                                <div class="text-sm font-bold text-white">Trainer</div>
+                                <p class="text-xs text-gray-400 mt-1">Register as a trainer to appear on the trainer marketplace.</p>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-red-400 text-xs mt-1 hidden" id="role-error"></p>
+                    @error('role')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 {{-- Age & Gender --}}
@@ -123,8 +147,8 @@
                     </div>
                 </div>
 
-                {{-- Fitness Goal --}}
-                <div>
+                {{-- Fitness Goal (Users Only) --}}
+                <div id="goal-section">
                     <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Fitness Goal</label>
                     <select name="goal" class="w-full bg-surface-2 border border-border-col text-white rounded-xl px-4 py-3 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30 transition-all duration-200 text-sm">
                         <option value="">Select a goal (optional)</option>
@@ -133,6 +157,41 @@
                         <option value="maintenance" {{ old('goal') === 'maintenance' ? 'selected' : '' }}>⚖️ Maintain Fitness</option>
                     </select>
                     <p class="text-xs text-gray-600 mt-1.5">Personalises your workout &amp; diet recommendations</p>
+                </div>
+
+                {{-- Trainer Fields (Trainers Only) --}}
+                <div id="trainer-section" class="hidden space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Specialization</label>
+                        <input type="text" name="specialization" id="specialization" value="{{ old('specialization', 'General Fitness') }}"
+                               placeholder="e.g., Strength Training, Yoga, HIIT"
+                               class="input-field w-full bg-surface-2 border text-white rounded-xl px-4 py-3 focus:outline-none transition-all duration-200 placeholder-gray-600 text-sm {{ $errors->has('specialization') ? 'border-red-500' : 'border-border-col focus:border-brand focus:ring-1 focus:ring-brand/30' }}">
+                        @error('specialization')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Experience (Years)</label>
+                            <input type="number" name="experience" id="experience" value="{{ old('experience', 1) }}"
+                                   placeholder="1" min="1" max="60"
+                                   class="input-field w-full bg-surface-2 border text-white rounded-xl px-4 py-3 focus:outline-none transition-all duration-200 placeholder-gray-600 text-sm {{ $errors->has('experience') ? 'border-red-500' : 'border-border-col focus:border-brand focus:ring-1 focus:ring-brand/30' }}">
+                            @error('experience')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Students</label>
+                            <input type="number" name="students" id="students" value="{{ old('students', 0) }}"
+                                   placeholder="0" min="0" max="999"
+                                   class="input-field w-full bg-surface-2 border text-white rounded-xl px-4 py-3 focus:outline-none transition-all duration-200 placeholder-gray-600 text-sm {{ $errors->has('students') ? 'border-red-500' : 'border-border-col focus:border-brand focus:ring-1 focus:ring-brand/30' }}">
+                            @error('students')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Cost per Session ($)</label>
+                            <input type="number" step="0.01" name="hourly_rate" id="hourly_rate" value="{{ old('hourly_rate', 50) }}"
+                                   placeholder="50" min="10" max="500"
+                                   class="input-field w-full bg-surface-2 border text-white rounded-xl px-4 py-3 focus:outline-none transition-all duration-200 placeholder-gray-600 text-sm {{ $errors->has('hourly_rate') ? 'border-red-500' : 'border-border-col focus:border-brand focus:ring-1 focus:ring-brand/30' }}">
+                            @error('hourly_rate')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Password --}}
@@ -153,6 +212,10 @@
                         <p class="field-error text-red-400 text-xs mt-1 hidden" id="confirm-error"></p>
                     </div>
                 </div>
+
+                <!-- Cloudflare Turnstile -->
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}"></div>
 
                 <button type="submit" id="submitBtn"
                         class="w-full bg-gradient-to-r from-brand to-brand-dark text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/30 hover:scale-[1.02] transition-all duration-200 text-sm">
@@ -194,6 +257,53 @@
                 if (!Number.isInteger(n)) return 'Age must be a whole number.';
                 if (n < 10) return 'Age must be at least 10 years.';
                 if (n > 120) return 'Age must be 120 years or less.';
+                return '';
+            }
+        },
+        role: {
+            validate(v) {
+                if (!v) return 'Please select an account type.';
+                if (!['user', 'trainer'].includes(v)) return 'Please select either user or trainer.';
+                return '';
+            }
+        },
+        specialization: {
+            validate(v) {
+                const role = document.querySelector('[name="role"]:checked')?.value;
+                if (role === 'trainer' && !v.trim()) return 'Specialization is required for trainers.';
+                return '';
+            }
+        },
+        experience: {
+            validate(v) {
+                const role = document.querySelector('[name="role"]:checked')?.value;
+                if (role === 'trainer') {
+                    if (v === '') return 'Experience is required for trainers.';
+                    const n = Number(v);
+                    if (n < 1 || n > 60) return 'Experience must be between 1 and 60 years.';
+                }
+                return '';
+            }
+        },
+        students: {
+            validate(v) {
+                const role = document.querySelector('[name="role"]:checked')?.value;
+                if (role === 'trainer') {
+                    if (v === '') return 'Students count is required.';
+                    const n = Number(v);
+                    if (n < 0 || n > 999) return 'Students must be between 0 and 999.';
+                }
+                return '';
+            }
+        },
+        hourly_rate: {
+            validate(v) {
+                const role = document.querySelector('[name="role"]:checked')?.value;
+                if (role === 'trainer') {
+                    if (v === '') return 'Cost per session is required.';
+                    const n = parseFloat(v);
+                    if (n < 10 || n > 500) return 'Cost must be between $10 and $500.';
+                }
                 return '';
             }
         },
@@ -253,21 +363,52 @@
         }
     }
 
+    // Toggle trainer/user specific fields
+    function updateFormFields() {
+        const role = document.querySelector('[name="role"]:checked')?.value || 'user';
+        const goalSection = document.getElementById('goal-section');
+        const trainerSection = document.getElementById('trainer-section');
+
+        if (role === 'trainer') {
+            goalSection.classList.add('hidden');
+            trainerSection.classList.remove('hidden');
+        } else {
+            goalSection.classList.remove('hidden');
+            trainerSection.classList.add('hidden');
+        }
+    }
+
+    // Attach role change listeners
+    document.querySelectorAll('[name="role"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateFormFields();
+        });
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', updateFormFields);
+
     // Real-time validation on blur
     Object.keys(rules).forEach(function(fieldId) {
-        const el = document.getElementById(fieldId);
+        const el = fieldId === 'role'
+            ? document.querySelector('[name="role"]:checked')
+            : document.getElementById(fieldId);
         if (!el) return;
-        el.addEventListener('blur', function() {
-            const err = rules[fieldId].validate(el.value);
-            showError(fieldId, err);
-        });
-        el.addEventListener('input', function() {
-            // Clear error as user types
-            const errEl = document.getElementById(fieldId + '-error');
-            if (errEl && !errEl.classList.contains('hidden')) {
-                const err = rules[fieldId].validate(el.value);
+        const target = fieldId === 'role' ? document.querySelectorAll('[name="role"]') : [el];
+        target.forEach(function(item) {
+            item.addEventListener('blur', function() {
+                const value = fieldId === 'role' ? document.querySelector('[name="role"]:checked')?.value : el.value;
+                const err = rules[fieldId].validate(value);
                 showError(fieldId, err);
-            }
+            });
+            item.addEventListener('input', function() {
+                const errEl = document.getElementById(fieldId + '-error');
+                if (errEl && !errEl.classList.contains('hidden')) {
+                    const value = fieldId === 'role' ? document.querySelector('[name="role"]:checked')?.value : el.value;
+                    const err = rules[fieldId].validate(value);
+                    showError(fieldId, err);
+                }
+            });
         });
     });
 
@@ -284,9 +425,8 @@
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         let valid = true;
         Object.keys(rules).forEach(function(fieldId) {
-            const el = document.getElementById(fieldId);
-            if (!el) return;
-            const err = rules[fieldId].validate(el.value);
+            const value = fieldId === 'role' ? document.querySelector('[name="role"]:checked')?.value : document.getElementById(fieldId)?.value;
+            const err = rules[fieldId].validate(value);
             showError(fieldId, err);
             if (err) valid = false;
         });

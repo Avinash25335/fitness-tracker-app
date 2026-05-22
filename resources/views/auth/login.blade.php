@@ -68,8 +68,31 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            <form method="POST" action="{{ route('login.post') }}" class="space-y-5">
                 @csrf
+
+                {{-- Account Type --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Login As</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input id="login_role_user" type="radio" name="role" value="user" class="sr-only peer" {{ old('role', 'user') === 'user' ? 'checked' : '' }}>
+                            <label for="login_role_user" class="block cursor-pointer rounded-2xl border border-border-col bg-surface-2 p-4 transition-all duration-200 hover:border-brand peer-checked:border-brand peer-checked:bg-surface">
+                                <div class="text-sm font-bold text-white">User</div>
+                                <p class="text-xs text-gray-400 mt-1">Use workouts, nutrition tools, and book trainers.</p>
+                            </label>
+                        </div>
+                        <div>
+                            <input id="login_role_trainer" type="radio" name="role" value="trainer" class="sr-only peer" {{ old('role') === 'trainer' ? 'checked' : '' }}>
+                            <label for="login_role_trainer" class="block cursor-pointer rounded-2xl border border-border-col bg-surface-2 p-4 transition-all duration-200 hover:border-brand peer-checked:border-brand peer-checked:bg-surface">
+                                <div class="text-sm font-bold text-white">Trainer</div>
+                                <p class="text-xs text-gray-400 mt-1">Access your trainer marketplace profile.</p>
+                            </label>
+                        </div>
+                    </div>
+                    @error('role')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
                     <input type="email" name="email" value="{{ old('email') }}" required autofocus
@@ -91,6 +114,10 @@
                     <input type="checkbox" id="remember" name="remember" class="w-4 h-4 rounded border-border-col bg-surface-2 text-brand focus:ring-brand">
                     <label for="remember" class="text-sm text-gray-400">Remember me for 30 days</label>
                 </div>
+
+                <!-- Cloudflare Turnstile -->
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}"></div>
 
                 <button type="submit"
                         class="w-full btn-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/30 hover:scale-[1.02] transition-all duration-200 text-sm">

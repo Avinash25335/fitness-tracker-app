@@ -27,9 +27,9 @@ Route::get('/contact', function () { return view('home'); })->name('contact');
 
 // 🔑 Authentication
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // 🔑 Password Reset
@@ -54,10 +54,13 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/trainer/dashboard', [\App\Http\Controllers\TrainerDashboardController::class, 'index'])->name('trainer.dashboard');
+    Route::put('/trainer/cost', [\App\Http\Controllers\TrainerDashboardController::class, 'updateCost'])->name('trainer.cost.update');
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Workouts (Action Routes only)
     Route::post('/workouts/{workout}/start', [WorkoutPlanController::class, 'start'])->name('workouts.start');
@@ -65,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Nutrition Hub (Action Routes only)
     Route::post('/diets/{diet}/follow', [DietPlanController::class, 'follow'])->name('diets.follow');
     Route::get('/diets/{diet}/download', [DietPlanController::class, 'download'])->name('diets.download');
+    Route::post('/nutrition/log', [\App\Http\Controllers\CalorieLogController::class, 'store'])->name('nutrition.log');
 
     // Transformation / Progress
     Route::get('/progress', [ProgressController::class, 'index'])->name('progress.index');

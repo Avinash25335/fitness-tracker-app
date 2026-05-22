@@ -157,6 +157,68 @@
         </div>
     </div>
 
+    <!-- 🤖 AI Nutrition Logger -->
+    <div class="card p-10 bg-adaptive border-adaptive shadow-xl relative overflow-hidden group">
+        <div class="absolute right-0 top-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
+            <svg class="w-48 h-48 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        </div>
+        
+        <div class="flex items-center gap-4 mb-8 relative z-10">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white shadow-lg shadow-brand/20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-main-area tracking-tight">AI Nutrition Logger</h3>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Powered by NVIDIA NIM</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+            <div class="lg:col-span-2 space-y-4">
+                <form id="aiCalorieForm" class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" id="mealInput" placeholder="What did you eat? e.g. 2 boiled eggs and a slice of toast" class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold text-main-area bg-adaptive border-adaptive focus:border-brand outline-none transition-all placeholder-gray-500" required>
+                    <button type="submit" id="logMealBtn" class="bg-brand text-white font-black uppercase text-xs tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                        <span>Analyze & Log</span>
+                        <svg class="w-4 h-4 hidden animate-spin" id="logSpinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                </form>
+                
+                <!-- Today's Logs Display -->
+                <div class="bg-surface-3/50 p-6 rounded-[2rem] border border-adaptive bg-adaptive mt-6">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Today's Meals</h4>
+                    <div class="space-y-3 max-h-[150px] overflow-y-auto no-scrollbar" id="todayMealsContainer">
+                        @forelse($todayCalorieLogs ?? [] as $log)
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 bg-adaptive border-adaptive">
+                                <span class="text-xs font-bold text-main-area">{{ $log->meal_description }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-brand bg-brand/10 px-2 py-1 rounded-md">{{ $log->calories }} kcal</span>
+                                    <span class="text-[9px] font-bold text-gray-500">P:{{ $log->protein }} C:{{ $log->carbs }} F:{{ $log->fats }}</span>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-xs text-gray-500 font-bold italic" id="emptyMealsText">No meals logged today yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 rounded-[2.5rem] p-8 flex flex-col justify-center items-center text-center">
+                <p class="text-[10px] font-black text-brand uppercase tracking-widest mb-2">Today's Intake</p>
+                <div class="relative">
+                    <svg class="w-32 h-32 transform -rotate-90">
+                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" class="text-brand/10" />
+                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" class="text-brand shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-1000" stroke-dasharray="351.8" stroke-dashoffset="{{ max(0, 351.8 - (351.8 * min(1, ($todayTotalCalories ?? 0) / 2500))) }}" id="calorieCircle" stroke-linecap="round"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-2xl font-black text-main-area" id="calorieTotal">{{ $todayTotalCalories ?? 0 }}</span>
+                        <span class="text-[8px] font-black text-gray-500 uppercase tracking-widest mt-1">/ 2500 kcal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Achievements -->
     <div class="card p-10 bg-adaptive border-adaptive shadow-xl">
         <div class="flex items-center justify-between mb-10">
@@ -340,6 +402,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             container.appendChild(badge);
+        });
+    }
+
+    // 5. AI Nutrition Logger
+    const aiCalorieForm = document.getElementById('aiCalorieForm');
+    if (aiCalorieForm) {
+        aiCalorieForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('mealInput');
+            const btn = document.getElementById('logMealBtn');
+            const spinner = document.getElementById('logSpinner');
+            const btnText = btn.querySelector('span');
+            
+            if (!input.value.trim()) return;
+
+            btn.disabled = true;
+            btnText.innerText = 'Analyzing...';
+            spinner.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/nutrition/log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ meal_description: input.value })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error || 'Failed to analyze meal');
+                
+                if (data.success) {
+                    showToast('Meal analyzed & logged successfully!', 'success');
+                    input.value = '';
+                    
+                    // Add new log to the list
+                    const container = document.getElementById('todayMealsContainer');
+                    const emptyText = document.getElementById('emptyMealsText');
+                    if (emptyText) emptyText.remove();
+                    
+                    const newLog = document.createElement('div');
+                    newLog.className = 'flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 bg-adaptive border-adaptive animate-slide-up';
+                    newLog.innerHTML = `
+                        <span class="text-xs font-bold text-main-area">${data.data.meal_description}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-black text-brand bg-brand/10 px-2 py-1 rounded-md">${data.data.calories} kcal</span>
+                            <span class="text-[9px] font-bold text-gray-500">P:${data.data.protein} C:${data.data.carbs} F:${data.data.fats}</span>
+                        </div>
+                    `;
+                    container.prepend(newLog);
+                    
+                    // Update Circle & Total
+                    const totalEl = document.getElementById('calorieTotal');
+                    const currentTotal = parseInt(totalEl.innerText) + data.data.calories;
+                    totalEl.innerText = currentTotal;
+                    
+                    const circle = document.getElementById('calorieCircle');
+                    const maxVal = 2500;
+                    const offset = Math.max(0, 351.8 - (351.8 * Math.min(1, currentTotal / maxVal)));
+                    circle.style.strokeDashoffset = offset;
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = 'Analyze & Log';
+                spinner.classList.add('hidden');
+            }
         });
     }
 

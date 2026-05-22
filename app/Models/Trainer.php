@@ -15,7 +15,8 @@ class Trainer extends Model
         'specialization',
         'image',
         'hourly_rate',
-        'experience', // ← BUG 3 FIX: was missing, caused silent save failure
+        'experience',
+        'students',
     ];
 
     public function user()
